@@ -215,6 +215,12 @@ No changes to existing modules required.
 | T014 | Add CONTRIBUTING.md | Docs | Medium | T013 | **COMPLETED** | Committed locally |
 | T015 | Add usage docs (local + HPC) | Docs | Medium | T014 | **COMPLETED** | Committed locally |
 | T016 | Push all local commits to remote | Infra | High | T015 | **TODO** | Push when ready |
+| T017 | Add logging (terminal+file) to all modules | All | High | T010 | **COMPLETED** | Logs in logs/, sink() in R, logging in Python |
+| T018 | Add input validation to R scripts | All | High | T017 | **COMPLETED** | Check file existence before processing |
+| T019 | Create SLURM profile for HPC | Infra | Medium | T015 | **COMPLETED** | workflow/profiles/slurm/config.yaml |
+| T020 | Create minimal test dataset | Test | Medium | T019 | **COMPLETED** | data/test/ with fake TCGA-like files |
+| T021 | Update USAGE.md with new features | Docs | Medium | T020 | **COMPLETED** | Logging, SLURM, test data sections |
+| T022 | Push all enhancements to remote | Infra | High | T021 | **TODO** | Push when ready |
 
 ---
 
