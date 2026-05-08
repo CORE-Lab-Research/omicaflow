@@ -10,6 +10,8 @@ rule analyze_dna:
         cnv_results="results/dna/{cancer_type}/CNV_GISTIC.tsv",
         mutational_burden="results/dna/{cancer_type}/Mutational_burden.tsv",
         dna_summary="results/dna/{cancer_type}/DNA_integration_summary.tsv"
+    log:
+        "logs/dna_{cancer_type}.log"
     params:
         snv_tool=config["dna"]["snv_tool"],
         cnv_tool=config["dna"]["cnv_tool"],

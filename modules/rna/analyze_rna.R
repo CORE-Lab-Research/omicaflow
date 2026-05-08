@@ -13,22 +13,49 @@ filtered_rna <- snakemake@input$filtered_rna
 sample_list <- snakemake@input$sample_list
 padj_thresh <- snakemake@params$padj_threshold
 lfc_thresh <- snakemake@params$lfc_threshold
+log_file <- snakemake@log[[1]]
+
+# Setup logging
+log_dir <- dirname(log_file)
+if (!dir.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
+sink(log_file, type = "output", append = TRUE)
+sink(log_file, type = "message", append = TRUE)
+message("=== START RNA ANALYSIS MODULE: ", Sys.time(), " ===")
+
+# Input validation
+input_files <- c(filtered_rna, sample_list)
+for (f in input_files) {
+    if (!file.exists(f)) {
+        message("ERROR: Input file not found: ", f)
+        stop(paste("Missing input file:", f))
+    }
+}
+message("All input files validated")
 
 # Create output directory
 output_dir <- dirname(snakemake@output$deg_results)
-if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+    message("Created output directory: ", output_dir)
+}
 
 # --- Load and prepare data ---
+message("Loading RNA-seq data...")
 rna_data <- read_tsv(filtered_rna, show_col_types = FALSE)
+message("RNA data loaded: ", nrow(rna_data), " genes, ", ncol(rna_data)-1, " samples")
+
 sample_df <- read_tsv(sample_list, show_col_types = FALSE)
+message("Sample list loaded: ", nrow(sample_df), " samples")
 
 # For MVP, assume half are tumor, half are normal (simplified)
 # In real implementation, get sample types from TCGA metadata
 n_samples <- ncol(rna_data) - 1  # minus gene_id column
 tumor_samples <- colnames(rna_data)[2:(n_samples/2 + 1)]
 normal_samples <- colnames(rna_data)[(n_samples/2 + 2):ncol(rna_data)]
+message("Assumed sample types: ", length(tumor_samples), " tumor, ", length(normal_samples), " normal")
 
 # Create DESeq2 object
+message("Creating DESeq2 object...")
 count_data <- rna_data %>%
     column_to_rownames("gene_id") %>%
     as.matrix()
@@ -43,8 +70,10 @@ dds <- DESeqDataSetFromMatrix(
     colData = col_data,
     design = ~ condition
 )
+message("DESeq2 object created")
 
 # Run DESeq2
+message("Running DESeq2...")
 dds <- DESeq(dds)
 deg_results <- results(dds, contrast = c("condition", "Tumor", "Normal")) %>%
     as.data.frame() %>%
@@ -53,16 +82,20 @@ deg_results <- results(dds, contrast = c("condition", "Tumor", "Normal")) %>%
     arrange(padj)
 
 write_tsv(deg_results, snakemake@output$deg_results)
+message("DEG results saved: ", snakemake@output$deg_results, " (", nrow(deg_results), " DEGs)")
 
 # Normalize expression
+message("Normalizing expression counts...")
 norm_counts <- counts(dds, normalized = TRUE) %>%
     as.data.frame() %>%
     rownames_to_column("gene_id")
 
 write_tsv(norm_counts, snakemake@output$norm_expr)
+message("Normalized expression saved: ", snakemake@output$norm_expr)
 
 # --- Pathway Enrichment (GO) ---
 if (nrow(deg_results) > 0) {
+    message("Running GO pathway enrichment...")
     ego <- enrichGO(
         gene = deg_results$gene_id,
         OrgDb = org.Hs.eg.db::org.Hs.eg.db,
@@ -74,12 +107,15 @@ if (nrow(deg_results) > 0) {
     
     pathway_df <- as.data.frame(ego)
     write_tsv(pathway_df, snakemake@output$pathway_enrichment)
+    message("Pathway enrichment saved: ", snakemake@output$pathway_enrichment, " (", nrow(pathway_df), " pathways)")
 } else {
+    message("No DEGs found, skipping pathway enrichment")
     write_tsv(data.frame(), snakemake@output$pathway_enrichment)
 }
 
 # --- Survival Association (simplified) ---
 # For MVP, create dummy survival data
+message("Generating survival association (simplified)...")
 survival_df <- data.frame(
     sample = col_data$sample,
     os_time = runif(nrow(col_data), 100, 1000),
@@ -99,9 +135,11 @@ if (nrow(deg_results) > 0) {
     )
     
     write_tsv(survival_assoc, snakemake@output$survival_assoc)
+    message("Survival association saved: ", snakemake@output$survival_assoc)
 }
 
 # --- Generate QC Report ---
+message("Generating QC report...")
 pca_data <- prcomp(t(log2(norm_counts[, !colnames(norm_counts) %in% "gene_id"] + 1)), scale. = TRUE)
 
 pca_df <- as.data.frame(pca_data$x[, 1:2])
@@ -126,5 +164,10 @@ qc_html <- paste0(
 )
 
 writeLines(qc_html, snakemake@output$rna_qc)
+message("QC report saved: ", snakemake@output$rna_qc)
 
+message("=== RNA ANALYSIS MODULE COMPLETED: ", Sys.time(), " ===")
 message("RNA analysis completed. DEGs found: ", nrow(deg_results))
+# Close sink connections
+sink(type = "output")
+sink(type = "message")

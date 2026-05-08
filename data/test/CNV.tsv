@@ -1,0 +1,4 @@
+Sample	gene_symbol	segment_mean
+TCGA-00-0001	TP53	0.8
+TCGA-00-0002	KRAS	-0.6
+TCGA-00-0003	EGFR	1.2

@@ -7,9 +7,11 @@ rule generate_report:
         sample_list="data/qc/{cancer_type}/final_sample_list.tsv"
     output:
         report="results/reports/{cancer_type}/OmicaFlow_Report.html"
+    log:
+        "logs/reporting_{cancer_type}.log"
     params:
         template_dir=config["reporting"]["template_dir"],
-        project_name=config["project"]["name"]
+        project_name=config["reporting"]["project_name"]
     conda:
         "envs/snakemake.yml"
     script:

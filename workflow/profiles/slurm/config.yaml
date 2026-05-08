@@ -1,0 +1,26 @@
+# Snakemake SLURM Profile for HPC
+# Usage: snakemake --profile workflow/profiles/slurm
+
+# Maximum number of concurrent jobs
+jobs: 16
+
+# SLURM submission command
+cluster: "sbatch -n {threads} -t {resources.time} --mem {resources.mem} -o logs/slurm_%j.out"
+
+# Default resources for rules that don't specify
+default-resources:
+  time: "12:00:00"
+  mem: "16G"
+  threads: 4
+
+# Restart jobs on failure (up to 1 time)
+restart-times: 1
+
+# Create logs directory if not exists
+precommand: "mkdir -p logs"
+
+# Print shell commands as they execute
+printshellcmds: true
+
+# Keep going on errors (finish other jobs)
+keep-going: true

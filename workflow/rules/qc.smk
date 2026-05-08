@@ -12,6 +12,8 @@ rule run_qc:
         filtered_meth="data/qc/{cancer_type}/filtered_Methylation_Beta.tsv",
         sample_list="data/qc/{cancer_type}/final_sample_list.tsv",
         qc_report="data/qc/{cancer_type}/QC_report.html"
+    log:
+        "logs/qc_{cancer_type}.log"
     params:
         min_callrate=config["qc"]["min_sample_callrate"],
         min_map_rate=config["qc"]["min_rna_mapping_rate"],

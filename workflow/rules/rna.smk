@@ -9,6 +9,8 @@ rule analyze_rna:
         pathway_enrichment="results/rna/{cancer_type}/Pathway_enrichment.tsv",
         survival_assoc="results/rna/{cancer_type}/Survival_association.tsv",
         rna_qc="results/rna/{cancer_type}/Expression_QC.html"
+    log:
+        "logs/rna_{cancer_type}.log"
     params:
         deg_tool=config["rna"]["deg_tool"],
         padj_threshold=config["rna"]["padj_threshold"],

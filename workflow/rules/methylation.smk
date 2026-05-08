@@ -8,6 +8,8 @@ rule analyze_methylation:
         norm_meth="results/methylation/{cancer_type}/Normalized_methylation.tsv",
         func_annotation="results/methylation/{cancer_type}/Functional_annotation.tsv",
         meth_qc="results/methylation/{cancer_type}/Methylation_QC.html"
+    log:
+        "logs/methylation_{cancer_type}.log"
     params:
         array_type=config["methylation"]["array_type"],
         norm_method=config["methylation"]["normalization_method"],

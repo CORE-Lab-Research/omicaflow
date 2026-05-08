@@ -33,7 +33,7 @@
 ### macOS/Linux
 Same as Windows but use terminal.
 
-## HPC/SSH Setup
+## HPC/SSH Setup with SLURM Profile
 1. SSH into HPC cluster:
    ```bash
    ssh username@hpc-cluster.edu
@@ -43,19 +43,51 @@ Same as Windows but use terminal.
    module load conda
    ```
 3. Clone repo and set up environments as in Local Setup steps 3-5
-4. Create a job submission script (e.g., `run_omicaflow.sh` for SLURM):
+4. Run pipeline using pre-configured SLURM profile:
+   ```bash
+   snakemake --profile workflow/profiles/slurm
+   ```
+   This uses `workflow/profiles/slurm/config.yaml` which sets default threads, memory, and time limits.
+5. For custom job submission, create a script (e.g., `run_omicaflow.sh`):
    ```bash
    #!/bin/bash
    #SBATCH -n 16
    #SBATCH --mem 32G
    #SBATCH -t 24:00:00
    conda activate omicaflow-snakemake
-   snakemake --cores 16
+   snakemake --profile workflow/profiles/slurm
    ```
-5. Submit job:
-   ```bash
-   sbatch run_omicaflow.sh
-   ```
+   Submit with: `sbatch run_omicaflow.sh`
+
+## Logging System
+Each module generates logs in `logs/` directory:
+- Terminal output: Progress messages print to terminal in real-time
+- Log files: Per-module logs saved as `logs/{module}_{cancer_type}.log`
+- Example: `logs/dna_LUAD.log` contains all DNA module output and errors
+
+View logs in real-time during run:
+```bash
+tail -f logs/dna_LUAD.log
+```
+
+## Test Dataset (Quick Testing)
+A minimal fake dataset is available in `data/test/` for quick pipeline validation without downloading TCGA data:
+- `data/test/SNV.maf`
+- `data/test/CNV.tsv`
+- `data/test/RNA_FPKM.tsv`
+- `data/test/Methylation_Beta.tsv`
+
+To use test data, edit `config/base.yaml`:
+```yaml
+project:
+  cancer_type: "test"
+modules:
+  acquisition: { enabled: false }  # Skip download, use test data
+  qc: { enabled: true }
+  dna: { enabled: true }
+  # ... other modules
+```
+Then create symlinks or copy test data to expected paths.
 
 ## Common Commands
 - Dry-run (validate workflow without execution):
@@ -71,15 +103,22 @@ Same as Windows but use terminal.
   snakemake results/dna/LUAD/Driver_genes.tsv
   ```
 - Disable a module: Edit `config/base.yaml` set `enabled: false` for that module
+- View log of specific module:
+  ```bash
+  cat logs/dna_LUAD.log
+  ```
 
 ## Configuration
 Adjust all parameters in `config/base.yaml`:
 - Change cancer type: `project.cancer_type: "LUAD"`
 - Toggle modules: `modules.dna.enabled: false`
 - Adjust analysis thresholds: `rna.padj_threshold: 0.05`
+- Set log directory: `project.log_dir: "logs/"` (default)
 
 ## Troubleshooting
 - **Rscript not found**: Install R and add to PATH, or use conda R environment
 - **Conda environment creation fails**: Try `conda config --set channel_priority strict`
 - **Module not running**: Check `config/base.yaml` toggle is `enabled: true`
 - **Snakemake rule missing**: Ensure module toggle is enabled in config (rules are conditionally included)
+- **Log file not created**: Check `logs/` directory exists and is writable
+- **Test data not found**: Ensure `data/test/` files are present (they are committed to repo)

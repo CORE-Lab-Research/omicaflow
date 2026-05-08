@@ -10,22 +10,47 @@ filtered_snv <- snakemake@input$filtered_snv
 filtered_cnv <- snakemake@input$filtered_cnv
 sample_list <- snakemake@input$sample_list
 maf_threshold <- snakemake@params$maf_threshold
+log_file <- snakemake@log[[1]]
+
+# Setup logging
+log_dir <- dirname(log_file)
+if (!dir.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
+sink(log_file, type = "output", append = TRUE)
+sink(log_file, type = "message", append = TRUE)
+message("=== START DNA ANALYSIS MODULE: ", Sys.time(), " ===")
+
+# Input validation
+input_files <- c(filtered_snv, filtered_cnv, sample_list)
+for (f in input_files) {
+    if (!file.exists(f)) {
+        message("ERROR: Input file not found: ", f)
+        stop(paste("Missing input file:", f))
+    }
+}
+message("All input files validated")
 
 # Create output directory
 output_dir <- dirname(snakemake@output$annotated_snv)
-if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+if (!dir.exists(output_dir)) {
+    dir.create(output_dir, recursive = TRUE)
+    message("Created output directory: ", output_dir)
+}
 
 # --- SNV Analysis with maftools ---
+message("Loading SNV data...")
 maf_data <- read_tsv(filtered_snv, show_col_types = FALSE)
+message("SNV data loaded: ", nrow(maf_data), " rows")
 
-# Create MAF object for maftools
+message("Creating MAF object with maftools...")
 maf_obj <- read.maf(maf = filtered_snv)
 
 # Get annotated SNV data
 annotated_snv <- maf_obj@data
 write_tsv(annotated_snv, snakemake@output$annotated_snv)
+message("Annotated SNV saved: ", snakemake@output$annotated_snv, " (", nrow(annotated_snv), " rows)")
 
 # Driver gene prediction (top mutated genes by MAF)
+message("Identifying driver genes (MAF >= ", maf_threshold, ")...")
 gene_summary <- annotated_snv %>%
     group_by(Hugo_Symbol) %>%
     summarise(
@@ -38,8 +63,10 @@ gene_summary <- annotated_snv %>%
     arrange(desc(maf))
 
 write_tsv(gene_summary, snakemake@output$driver_genes)
+message("Driver genes saved: ", snakemake@output$driver_genes, " (", nrow(gene_summary), " genes)")
 
 # Mutational burden calculation
+message("Calculating mutational burden...")
 mut_burden <- annotated_snv %>%
     group_by(Tumor_Sample_Barcode) %>%
     summarise(
@@ -51,11 +78,14 @@ mut_burden <- annotated_snv %>%
     )
 
 write_tsv(mut_burden, snakemake@output$mutational_burden)
+message("Mutational burden saved: ", snakemake@output$mutational_burden, " (", nrow(mut_burden), " samples)")
 
 # --- CNV Analysis (simplified for MVP) ---
+message("Loading CNV data...")
 cnv_data <- read_tsv(filtered_cnv, show_col_types = FALSE)
+message("CNV data loaded: ", nrow(cnv_data), " rows, ", length(unique(cnv_data$Sample)), " samples")
 
-# Simple CNV summary: count amplifications/deletions per gene
+message("Summarizing CNV events...")
 cnv_summary <- cnv_data %>%
     filter(segment_mean > 0.5 | segment_mean < -0.5) %>%  # Threshold for amp/del
     group_by(Sample, gene_symbol) %>%
@@ -72,8 +102,10 @@ cnv_summary <- cnv_data %>%
     arrange(desc(n_samples))
 
 write_tsv(cnv_summary, snakemake@output$cnv_results)
+message("CNV summary saved: ", snakemake@output$cnv_results, " (", nrow(cnv_summary), " entries)")
 
 # --- DNA Integration Summary ---
+message("Generating DNA integration summary...")
 dna_summary <- data.frame(
     metric = c("Total SNV mutations", "Driver genes (MAF >= threshold)", "Samples with CNV events"),
     value = c(
@@ -85,5 +117,10 @@ dna_summary <- data.frame(
 )
 
 write_tsv(dna_summary, snakemake@output$dna_summary)
+message("DNA summary saved: ", snakemake@output$dna_summary)
 
-message("DNA analysis completed. Driver genes found: ", nrow(gene_summary))
+message("=== DNA ANALYSIS MODULE COMPLETED: ", Sys.time(), " ===")
+message("Driver genes found: ", nrow(gene_summary))
+# Close sink connections
+sink(type = "output")
+sink(type = "message")
