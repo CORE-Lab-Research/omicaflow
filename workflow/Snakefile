@@ -1,0 +1,67 @@
+# OmicaFlow Main Snakefile
+# Reads config/base.yaml and includes rules based on module toggles
+
+configfile: "config/base.yaml"
+
+# Set Snakemake options
+shell.executable("powershell")
+shell.prefix("")
+
+# Include module rules based on config toggles
+if config["modules"]["acquisition"]["enabled"]:
+    include: "rules/acquisition.smk"
+    
+if config["modules"]["qc"]["enabled"]:
+    include: "rules/qc.smk"
+    
+if config["modules"]["dna"]["enabled"]:
+    include: "rules/dna.smk"
+    
+if config["modules"]["rna"]["enabled"]:
+    include: "rules/rna.smk"
+    
+if config["modules"]["methylation"]["enabled"]:
+    include: "rules/methylation.smk"
+    
+if config["modules"]["reporting"]["enabled"]:
+    include: "rules/reporting.smk"
+
+# Default target rule - depends on enabled modules
+rule all:
+    input:
+        # Acquisition output (always required if enabled)
+        acquisition=(
+            f"data/raw/{config['project']['cancer_type']}/sample_map.tsv"
+            if config["modules"]["acquisition"]["enabled"]
+            else []
+        ),
+        # QC output
+        qc=(
+            f"data/qc/{config['project']['cancer_type']}/QC_report.html"
+            if config["modules"]["qc"]["enabled"]
+            else []
+        ),
+        # DNA output
+        dna=(
+            f"results/dna/{config['project']['cancer_type']}/Driver_genes.tsv"
+            if config["modules"]["dna"]["enabled"]
+            else []
+        ),
+        # RNA output
+        rna=(
+            f"results/rna/{config['project']['cancer_type']}/DEG_results.tsv"
+            if config["modules"]["rna"]["enabled"]
+            else []
+        ),
+        # Methylation output
+        methylation=(
+            f"results/methylation/{config['project']['cancer_type']}/DMP_results.tsv"
+            if config["modules"]["methylation"]["enabled"]
+            else []
+        ),
+        # Reporting output
+        report=(
+            f"results/reports/{config['project']['cancer_type']}/OmicaFlow_Report.html"
+            if config["modules"]["reporting"]["enabled"]
+            else []
+        )
