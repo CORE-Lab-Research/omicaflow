@@ -1,0 +1,95 @@
+# =============================================
+# OmicaFlow Global Configuration (Single Source of Truth)
+# =============================================
+
+# =============================================
+# GLOBAL PARAMETERS (Adjustable)
+# =============================================
+project:
+  name: "OmicaFlow_LUAD_MVP"
+  cancer_type: "LUAD"  # TCGA project code
+  output_dir: "results/"
+  temp_dir: "temp/"
+  log_dir: "logs/"
+
+# =============================================
+# MODULE TOGGLES (Enable/Disable via single flag)
+# =============================================
+modules:
+  acquisition: { enabled: true }
+  qc: { enabled: true }
+  dna: { enabled: true }
+  rna: { enabled: true }
+  methylation: { enabled: true }
+  reporting: { enabled: true }
+
+# =============================================
+# ACQUISITION PARAMETERS
+# =============================================
+acquisition:
+  source: "TCGA"
+  tcga_api_url: "https://api.gdc.cancer.gov"
+  cache_dir: "data/raw/cache/"
+  download_tool: "TCGAbiolinks"  # R-based TCGA downloader
+  retry_count: 3
+  data_types:
+    snv: "Masked Somatic Mutation"
+    cnv: "Copy Number Segment"
+    rna: "HTSeq - FPKM"
+    methylation: "Methylation Beta Value"
+
+# =============================================
+# QC PARAMETERS
+# =============================================
+qc:
+  min_sample_callrate: 0.95  # Minimum variant call rate for DNA
+  min_rna_mapping_rate: 0.8   # Minimum RNA-seq mapping rate
+  max_methylation_na: 0.1     # Maximum missingness for methylation probes
+  multiqc_enabled: true
+
+# =============================================
+# DNA ANALYSIS PARAMETERS
+# =============================================
+dna:
+  snv_tool: "maftools"  # Options: maftools, vcfanno
+  cnv_tool: "GISTIC2"   # Options: GISTIC2, CNVkit
+  driver_prediction: true
+  driver_maf_threshold: 0.05  # MAF threshold for driver candidate filtering
+  mutational_signature_enabled: false  # MVP only, enable later
+
+# =============================================
+# RNA ANALYSIS PARAMETERS
+# =============================================
+rna:
+  deg_tool: "DESeq2"  # Options: DESeq2, edgeR
+  padj_threshold: 0.05
+  lfc_threshold: 1.5
+  normalization_method: "vst"  # Options: vst, tmm
+  pathway_enrichment: true
+  enrichment_databases: ["GO", "KEGG", "Hallmark"]
+
+# =============================================
+# METHYLATION PARAMETERS
+# =============================================
+methylation:
+  array_type: "450K"  # Options: 450K, EPIC
+  normalization_method: "SWAN"  # Options: SWAN, FunNorm
+  dmp_padj_threshold: 0.05
+  dmr_detection_enabled: false  # MVP only
+
+# =============================================
+# REPORTING PARAMETERS
+# =============================================
+reporting:
+  template_dir: "templates/jinja2/"
+  output_format: "html"  # Options: html, pdf
+  logo_path: "assets/omica_logo.png"
+  include_qc: true
+  include_module_reports: true
+
+# =============================================
+# ENVIRONMENT PARAMETERS
+# =============================================
+env:
+  conda_prefix: "envs/"
+  renv_snapshot_path: "renv.lock"

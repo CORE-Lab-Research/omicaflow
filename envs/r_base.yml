@@ -1,0 +1,15 @@
+name: omicaflow-r-base
+channels:
+  - conda-forge
+  - r
+dependencies:
+  - r=4.3.1
+  - r-renv=1.0.0
+  - r-tcgabiolinks=2.30.0
+  - r-maftools=2.16.0
+  - r-deseq2=1.40.2
+  - r-edger=3.42.4
+  - r-minfi=1.46.0
+  - r-limma=3.56.2
+  - r-clusterprofiler=4.8.0
+  - bioconductor-summarizedexperiment=1.30.2

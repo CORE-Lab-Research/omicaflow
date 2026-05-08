@@ -1,0 +1,27 @@
+# Data and results
+results/**
+data/**
+temp/**
+logs/**
+
+# Snakemake
+.snakemake/**
+*.snakemake_timestamp
+
+# R renv
+renv/library/**
+renv/staging/**
+
+# Python
+__pycache__/**
+*.pyc
+.env/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
