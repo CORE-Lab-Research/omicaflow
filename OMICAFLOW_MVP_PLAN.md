@@ -211,6 +211,10 @@ No changes to existing modules required.
 | T010 | Implement M05 Reporting | M05 | Medium | T007, T008, T009 | **COMPLETED** | Jinja2 template + Python script |
 | T011 | End-to-end test with LUAD | All | High | T010 | **TODO** | Need R installed to run |
 | T012 | Document module interfaces | Docs | Medium | T011 | **TODO** | For future extension |
+| T013 | Add MIT License | Docs | Medium | T012 | **COMPLETED** | Committed locally |
+| T014 | Add CONTRIBUTING.md | Docs | Medium | T013 | **COMPLETED** | Committed locally |
+| T015 | Add usage docs (local + HPC) | Docs | Medium | T014 | **COMPLETED** | Committed locally |
+| T016 | Push all local commits to remote | Infra | High | T015 | **TODO** | Push when ready |
 
 ---
 
