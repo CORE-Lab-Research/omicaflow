@@ -1,0 +1,25 @@
+# Snakemake PBS/Torque Profile
+# Usage: snakemake --profile workflow/profiles/pbs
+
+# Maximum concurrent jobs
+jobs: 16
+
+# PBS submission command (qsub)
+cluster: "qsub -l nodes=1:ppn={threads},mem={resources.mem}gb,walltime={resources.time} -o logs/pbs_$JOBID.out"
+# Note: PBS uses ppn (processors per node), mem in gb, walltime in HH:MM:SS
+
+# Default resources
+default-resources:
+  time: "12:00:00"
+  mem: 16
+  threads: 4
+
+# Restart on failure
+restart-times: 1
+
+# Create logs directory
+precommand: "mkdir -p logs"
+
+# Print shell commands
+printshellcmds: true
+keep-going: true

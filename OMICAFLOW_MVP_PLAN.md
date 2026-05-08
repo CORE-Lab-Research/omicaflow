@@ -221,6 +221,7 @@ No changes to existing modules required.
 | T020 | Create minimal test dataset | Test | Medium | T019 | **COMPLETED** | data/test/ with fake TCGA-like files |
 | T021 | Update USAGE.md with new features | Docs | Medium | T020 | **COMPLETED** | Logging, SLURM, test data sections |
 | T022 | Push all enhancements to remote | Infra | High | T021 | **TODO** | Push when ready |
+| T023 | Add non-SLURM HPC support (PBS profile, docs) | Infra | Medium | T022 | **COMPLETED** | PBS profile + USAGE update |
 
 ---
 

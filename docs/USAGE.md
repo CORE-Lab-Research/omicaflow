@@ -33,7 +33,7 @@
 ### macOS/Linux
 Same as Windows but use terminal.
 
-## HPC/SSH Setup with SLURM Profile
+## HPC/SSH Setup
 1. SSH into HPC cluster:
    ```bash
    ssh username@hpc-cluster.edu
@@ -43,21 +43,60 @@ Same as Windows but use terminal.
    module load conda
    ```
 3. Clone repo and set up environments as in Local Setup steps 3-5
-4. Run pipeline using pre-configured SLURM profile:
-   ```bash
-   snakemake --profile workflow/profiles/slurm
-   ```
-   This uses `workflow/profiles/slurm/config.yaml` which sets default threads, memory, and time limits.
-5. For custom job submission, create a script (e.g., `run_omicaflow.sh`):
-   ```bash
-   #!/bin/bash
-   #SBATCH -n 16
-   #SBATCH --mem 32G
-   #SBATCH -t 24:00:00
-   conda activate omicaflow-snakemake
-   snakemake --profile workflow/profiles/slurm
-   ```
-   Submit with: `sbatch run_omicaflow.sh`
+
+### Option A: SLURM Profile (Default)
+Run pipeline using pre-configured SLURM profile:
+```bash
+snakemake --profile workflow/profiles/slurm
+```
+This uses `workflow/profiles/slurm/config.yaml` which sets default threads, memory, and time limits.
+
+For custom job submission, create a script (e.g., `run_omicaflow.sh`):
+```bash
+#!/bin/bash
+#SBATCH -n 16
+#SBATCH --mem 32G
+#SBATCH -t 24:00:00
+conda activate omicaflow-snakemake
+snakemake --profile workflow/profiles/slurm
+```
+Submit with: `sbatch run_omicaflow.sh`
+
+### Option B: PBS/Torque Profile
+If your HPC uses PBS/Torque, use the pre-configured PBS profile:
+```bash
+snakemake --profile workflow/profiles/pbs
+```
+This uses `qsub` for job submission. Edit `workflow/profiles/pbs/config.yaml` to adjust resources.
+
+### Option C: Interactive Mode (No Scheduler)
+Run Snakemake directly in an interactive shell (most HPCs support `qsub -I` for PBS or `srun -I` for SLURM):
+```bash
+# Start interactive session (example for PBS)
+qsub -I -l nodes=1:ppn=8,mem=32gb,walltime=24:00:00
+
+# Inside interactive session:
+conda activate omicaflow-snakemake
+snakemake --cores 8  # Use available cores
+```
+
+### Option D: Other Schedulers (LSF, SGE)
+Create custom profiles in `workflow/profiles/` following the SLURM/PBS examples:
+- LSF: Use `bsub` in the `cluster` directive of your profile's config.yaml
+- SGE: Use `qsub` with SGE-specific flags
+
+### Option E: Simple Batch Script (Any Scheduler)
+Create a generic submission script:
+```bash
+#!/bin/bash
+# For PBS:
+#PBS -l nodes=1:ppn=16,mem=32gb,walltime=24:00:00
+# For LSF: #BSUB -n 16 -M 32768 -W 24:00
+
+conda activate omicaflow-snakemake
+snakemake --cores 16
+```
+Submit with your scheduler's native command (`qsub`, `bsub`, etc.).
 
 ## Logging System
 Each module generates logs in `logs/` directory:
