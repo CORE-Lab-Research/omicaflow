@@ -1,6 +1,5 @@
 # Data and results
 results/**
-.dev/
 data/**
 !data/test/
 temp/**
@@ -27,3 +26,13 @@ Desktop.ini
 # IDE
 .vscode/
 .idea/
+
+# Internal development files
+.dev/
+*.Rmd
+*.ipynb
+.ipynb_checkpoints/
+*.Rhistory
+*.RData
+*.swp
+*~
