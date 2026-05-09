@@ -222,6 +222,11 @@ No changes to existing modules required.
 | T021 | Update USAGE.md with new features | Docs | Medium | T020 | **COMPLETED** | Logging, SLURM, test data sections |
 | T022 | Push all enhancements to remote | Infra | High | T021 | **TODO** | Push when ready |
 | T023 | Add non-SLURM HPC support (PBS profile, docs) | Infra | Medium | T022 | **COMPLETED** | PBS profile + USAGE update |
+| T024 | Implement M06 Multi-Omics Integration | M06 | High | T010, T017, T018 | **COMPLETED** | Rule + R script for converging genes |
+| T025 | Implement M07 Survival Analysis | M07 | High | T024 | **COMPLETED** | Rule + R script for survival analysis |
+| T026 | Update USAGE.md with new modules | Docs | Medium | T025 | **COMPLETED** | Added integration/survival sections |
+| T027 | Push all modules to remote | Infra | High | T026 | **TODO** | Push when ready |
+| T023 | Add non-SLURM HPC support (PBS profile, docs) | Infra | Medium | T022 | **COMPLETED** | PBS profile + USAGE update |
 
 ---
 

@@ -22,6 +22,12 @@ if config["modules"]["rna"]["enabled"]:
     
 if config["modules"]["methylation"]["enabled"]:
     include: "rules/methylation.smk"
+
+if config["modules"]["integration"]["enabled"]:
+    include: "rules/integration.smk"
+
+if config["modules"]["survival"]["enabled"]:
+    include: "rules/survival.smk"
     
 if config["modules"]["reporting"]["enabled"]:
     include: "rules/reporting.smk"
@@ -57,6 +63,18 @@ rule all:
         methylation=(
             f"results/methylation/{config['project']['cancer_type']}/DMP_results.tsv"
             if config["modules"]["methylation"]["enabled"]
+            else []
+        ),
+        # Integration output
+        integration=(
+            f"results/integration/{config['project']['cancer_type']}/converging_genes.tsv"
+            if config["modules"]["integration"]["enabled"]
+            else []
+        ),
+        # Survival output (optional, requires clinical data)
+        survival=(
+            f"results/survival/{config['project']['cancer_type']}/survival_results.tsv"
+            if config["modules"]["survival"]["enabled"]
             else []
         ),
         # Reporting output

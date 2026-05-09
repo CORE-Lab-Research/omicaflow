@@ -21,6 +21,8 @@ modules:
   dna: { enabled: true }
   rna: { enabled: true }
   methylation: { enabled: true }
+  integration: { enabled: true }  # NEW: Multi-omics integration
+  survival: { enabled: false }  # NEW: Survival analysis (requires clinical data)
   reporting: { enabled: true }
 
 # =============================================
