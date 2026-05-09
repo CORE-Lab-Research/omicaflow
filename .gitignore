@@ -1,5 +1,6 @@
 # Data and results
 results/**
+.dev/
 data/**
 !data/test/
 temp/**
