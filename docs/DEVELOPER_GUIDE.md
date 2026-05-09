@@ -549,8 +549,8 @@ snakemake --cores all
 
 **Validation checks**:
 1. All output files created
-2. Known biomarkers present (TP53, KRAS for LUAD)
-3. Result counts in expected range (see `docs/EXPECTED_RESULTS.md`)
+2. Known biomarkers present (e.g., TP53)
+3. Result counts in expected range
 
 ### Reproducibility Testing
 **Run pipeline twice, compare results**:
@@ -605,7 +605,7 @@ snakemake --cores all --verbose --printshellcmds
 
 **Check module logs**:
 ```bash
-tail -f logs/dna_LUAD.log
+tail -f logs/dna_BRCA.log
 ```
 
 ---

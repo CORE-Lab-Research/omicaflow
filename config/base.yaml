@@ -6,8 +6,8 @@
 # GLOBAL PARAMETERS (Adjustable)
 # =============================================
 project:
-  name: "OmicaFlow_LUAD_MVP"
-  cancer_type: "LUAD"  # TCGA project code
+  name: "OmicaFlow_Analysis"
+  cancer_type: "BRCA"  # Example: LUAD, BRCA, COAD
   output_dir: "results/"
   temp_dir: "temp/"
   log_dir: "logs/"

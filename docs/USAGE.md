@@ -102,11 +102,11 @@ Submit with your scheduler's native command (`qsub`, `bsub`, etc.).
 Each module generates logs in `logs/` directory:
 - Terminal output: Progress messages print to terminal in real-time
 - Log files: Per-module logs saved as `logs/{module}_{cancer_type}.log`
-- Example: `logs/dna_LUAD.log` contains all DNA module output and errors
+- Example: `logs/dna_BRCA.log` contains all DNA module output and errors
 
 View logs in real-time during run:
 ```bash
-tail -f logs/dna_LUAD.log
+tail -f logs/dna_BRCA.log
 ```
 
 ## Test Dataset (Quick Testing)
@@ -139,17 +139,17 @@ Then create symlinks or copy test data to expected paths.
   ```
 - Run specific module output (e.g., DNA analysis results):
   ```bash
-  snakemake results/dna/LUAD/Driver_genes.tsv
+  snakemake results/dna/BRCA/Driver_genes.tsv
   ```
 - Disable a module: Edit `config/base.yaml` set `enabled: false` for that module
 - View log of specific module:
   ```bash
-  cat logs/dna_LUAD.log
+  cat logs/dna_BRCA.log
   ```
 
 ## Configuration
 Adjust all parameters in `config/base.yaml`:
-- Change cancer type: `project.cancer_type: "LUAD"`
+- Change cancer type: `project.cancer_type: "BRCA"`
 - Toggle modules: `modules.dna.enabled: false`
 - Adjust analysis thresholds: `rna.padj_threshold: 0.05`
 - Set log directory: `project.log_dir: "logs/"` (default)
