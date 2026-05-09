@@ -13,7 +13,7 @@ OmicaFlow provides a standardized workflow to address the challenge of **multi-o
 
 ### Key Features
 
-- **Multi-Omics Integration**: Identifies genes with somatic mutations + transcriptional alterations + promoter hypomethylation.
+- **Multi-Omics Integration**: Identifies genes with somatic mutations + transcriptional over-expression + promoter hypomethylation.
 - **Clinical Validation**: Survival analysis (Kaplan-Meier, Cox proportional hazards) to test prognostic value.
 - **Single Configuration**: All parameters adjustable via `config/base.yaml`.
 - **Modular Design**: Enable/disable modules independently via config toggles.
@@ -44,13 +44,14 @@ conda env create -f envs/r_base.yml
 ```
 
 ### Configuration
-Adjust parameters in `config/base.yaml` to define your project:
+Edit `config/base.yaml` to adjust parameters:
 ```yaml
 project:
   cancer_type: "BRCA"  # TCGA project code (e.g., BRCA, LUAD, COAD)
 
 modules:
   acquisition: { enabled: true }
+  qc: { enabled: true }
   dna: { enabled: true }
   rna: { enabled: true }
   methylation: { enabled: true }
@@ -59,16 +60,19 @@ modules:
   reporting: { enabled: true }
 ```
 
-### Execution
+### Run Pipeline
 ```bash
-# Dry-run
+# Dry-run to validate workflow
 snakemake -n
 
-# Run with local cores
+# Run locally with all available cores
 snakemake --cores all
 
-# Run on HPC (SLURM example)
+# Run on HPC with SLURM
 snakemake --profile workflow/profiles/slurm
+
+# Run on HPC with PBS/Torque
+snakemake --profile workflow/profiles/pbs
 ```
 
 ## Pipeline Modules
@@ -90,7 +94,7 @@ snakemake --profile workflow/profiles/slurm
 - **Cores**: 32-64
 - **Memory**: 64 GB RAM
 - **Runtime**: 8-15 hours for full TCGA cohort (~500 samples)
-- **Storage**: ~50 GB for full cohort data + results
+- **Storage**: ~50 GB for cohort data + results
 
 ### Minimum (Local)
 - **Cores**: 4-8
@@ -122,27 +126,27 @@ OmicaFlow/
 └── docs/                # Documentation
 ```
 
-## References
+## Citations & References
 
-Snakemake: Mölder F, Jablonski KP, Letcher B, Hall MB, Tomkins-Tinch CH, Sochat V, Forster J, Lee S, Twardziok SO, Kanitz A, Wilm A, Holtgrewe M, Rahmann S, Nahnsen S, Köster J. Sustainable data analysis with Snakemake. F1000Research. 2021;10:33. doi: 10.12688/f1000research.29032.3
+OmicaFlow builds upon the following key tools and methods:
 
-TCGAbiolinks: Colaprico A, Silva TC, Olsen C, Garofano L, Cava C, Garolini D, Sabedot TS, Malta TM, Pagnotta SM, Castiglioni I, Ceccarelli M, Bontempi G, Noushmehr H. TCGAbiolinks: an R/Bioconductor package for integrative analysis of TCGA data. Nucleic Acids Research. 2015;44(8):e71. doi: 10.1093/nar/gkv1507
+### Workflow Management
+- **Snakemake**: Mölder, F., Jablonski, K.P., Letcher, B., et al. (2021). Sustainable data analysis with Snakemake. *F1000Research*, 10:33. DOI: [10.12688/f1000research.29032.3](https://doi.org/10.12688/f1000research.29032.3)
 
-maftools: Mayakonda A, Lin DC, Assenov Y, Plass C, Koeffler HP. Maftools: efficient and comprehensive analysis of somatic variants in cancer. Genome Research. 2018;28(11):1747-1756. doi: 10.1101/gr.239244.118
+### Data Acquisition
+- **TCGAbiolinks**: Colaprico, A., Silva, T.C., Olsen, C., et al. (2015). TCGAbiolinks: an R/Bioconductor package for integrative analysis of TCGA data. *Nucleic Acids Research*, 44(8):e71. DOI: [10.1093/nar/gkv1507](https://doi.org/10.1093/nar/gkv1507)
 
-DESeq2: Love MI, Huber W, Anders S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. Genome Biology. 2014;15(12):550. doi: 10.1186/s13059-014-0550-8
+### DNA Analysis
+- **maftools**: Mayakonda, A., Lin, D.C., Assenov, Y., Plass, C., & Koeffler, H.P. (2018). Maftools: efficient and comprehensive analysis of somatic variants in cancer. *Genome Research*, 28(11):1747-1756. DOI: [10.1101/gr.239244.118](https://doi.org/10.1101/gr.239244.118)
 
-limma: Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W, Smyth GK. limma powers differential expression analyses for RNA-sequencing and microarray studies. Nucleic Acids Research. 2015;43(7):e47. doi: 10.1093/nar/gkv007
+### RNA Analysis
+- **DESeq2**: Love, M.I., Huber, W., & Anders, S. (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. *Genome Biology*, 15(12):550. DOI: [10.1186/s13059-014-0550-8](https://doi.org/10.1186/s13059-014-0550-8)
 
-minfi: Fortin JP, Triche TJ, Hansen KD. Preprocessing, normalization and integration of the Illumina HumanMethylationEPIC array with minfi. Bioinformatics. 2016;33(4):558-560. doi: 10.1093/bioinformatics/btw691
+### Methylation & Statistical Analysis
+- **limma**: Ritchie, M.E., Phipson, B., Wu, D., et al. (2015). limma powers differential expression analyses for RNA-sequencing and microarray studies. *Nucleic Acids Research*, 43(7):e47. DOI: [10.1093/nar/gkv007](https://doi.org/10.1093/nar/gkv007)
 
-clusterProfiler: Yu G, Wang LG, Han Y, He QY. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology. 2012;16(5):284-287. doi: 10.1089/omi.2011.0118
-
-survival: Therneau TM, Grambsch PM. Modeling Survival Data: Extending the Cox Model. Springer; 2000.
-
-survminer: Kassambara A, Kosinski M, Biecek P. survminer: Drawing Survival Curves using 'ggplot2'. R package version 0.4.9. 2021.
-
-TCGA Data: The Cancer Genome Atlas Research Network. Available at: https://portal.gdc.cancer.gov
+### Data Source
+- **TCGA**: The Cancer Genome Atlas Research Network. Available at: [https://portal.gdc.cancer.gov](https://portal.gdc.cancer.gov)
 
 ## Support
 
@@ -157,3 +161,10 @@ This pipeline was developed to address the need for integrated multi-omics analy
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Citation**: If you use OmicaFlow in your research, please cite this repository and the key tools listed above.
+
+**Version**: 1.0.0  
+**Last Updated**: 2026-05-09
