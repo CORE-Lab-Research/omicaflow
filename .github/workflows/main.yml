@@ -61,4 +61,4 @@ jobs:
 
     - name: Run Pipeline Smoke Test
       run: |
-        snakemake --cores 2 --use-conda --config project='{"cancer_type": "test"}'
+        snakemake --cores 2 --use-conda --conda-frontend conda --config project='{"cancer_type": "test"}'
