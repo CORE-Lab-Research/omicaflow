@@ -42,14 +42,14 @@ jobs:
         cp data/test/Methylation_Beta.tsv data/raw/test/
         # Create dummy sample_map.tsv
         echo -e "sample\tpatient\ttype" > data/raw/test/sample_map.tsv
-        echo -e "TCGA-00-0001\tTCGA-00-0001\tTumor" >> data/raw/test/sample_map.tsv
-        echo -e "TCGA-00-0002\tTCGA-00-0002\tTumor" >> data/raw/test/sample_map.tsv
-        echo -e "TCGA-00-0003\tTCGA-00-0003\tTumor" >> data/raw/test/sample_map.tsv
+        echo -e "TCGA-00-0001-01A\tTCGA-00-0001\tTumor" >> data/raw/test/sample_map.tsv
+        echo -e "TCGA-00-0002-01A\tTCGA-00-0002\tTumor" >> data/raw/test/sample_map.tsv
+        echo -e "TCGA-00-0003-11A\tTCGA-00-0003\tNormal" >> data/raw/test/sample_map.tsv
         # Create dummy clinical_data.tsv
-        echo -e "sample\tOS\tOS_status" > data/clinical/test/clinical_data.tsv
-        echo -e "TCGA-00-0001\t1000\t1" >> data/clinical/test/clinical_data.tsv
-        echo -e "TCGA-00-0002\t500\t0" >> data/clinical/test/clinical_data.tsv
-        echo -e "TCGA-00-0003\t1200\t1" >> data/clinical/test/clinical_data.tsv
+        echo -e "sample\tOS.time\tOS.status" > data/clinical/test/clinical_data.tsv
+        echo -e "TCGA-00-0001-01A\t1000\t1" >> data/clinical/test/clinical_data.tsv
+        echo -e "TCGA-00-0002-01A\t500\t0" >> data/clinical/test/clinical_data.tsv
+        echo -e "TCGA-00-0003-11A\t1200\t1" >> data/clinical/test/clinical_data.tsv
         # Disable modules that require external data or are optional for smoke test
         sed -i 's/acquisition: { enabled: true }/acquisition: { enabled: false }/' config/base.yaml
         sed -i 's/survival: { enabled: true }/survival: { enabled: false }/' config/base.yaml

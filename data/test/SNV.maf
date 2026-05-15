@@ -1,4 +1,4 @@
 Hugo_Symbol	Tumor_Sample_Barcode	Variant_Classification	Tumor_Seq_Allele1	Genome_Change
-TP53	TCGA-00-0001	Missense_Mutation	C	chr17:7578406:C>T
-KRAS	TCGA-00-0002	Missense_Mutation	G	chr12:25398284:G>T
-EGFR	TCGA-00-0003	Nonsense_Mutation	T	chr7:55242464:C>T
+TP53	TCGA-00-0001-01A	Missense_Mutation	C	chr17:7578406:C>T
+KRAS	TCGA-00-0002-01A	Missense_Mutation	G	chr12:25398284:G>T
+EGFR	TCGA-00-0003-11A	Nonsense_Mutation	T	chr7:55242464:C>T
