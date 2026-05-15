@@ -21,4 +21,4 @@ rule run_qc:
     conda:
         "../../envs/r_base.yml"
     script:
-        "../modules/qc/run_qc.R"
+        "../../modules/qc/run_qc.R"

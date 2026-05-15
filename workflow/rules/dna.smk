@@ -20,4 +20,4 @@ rule analyze_dna:
     conda:
         "../../envs/r_base.yml"
     script:
-        "../modules/dna/analyze_dna.R"
+        "../../modules/dna/analyze_dna.R"

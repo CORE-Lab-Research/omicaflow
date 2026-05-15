@@ -17,4 +17,4 @@ rule analyze_methylation:
     conda:
         "../../envs/r_base.yml"
     script:
-        "../modules/methylation/analyze_methylation.R"
+        "../../modules/methylation/analyze_methylation.R"
