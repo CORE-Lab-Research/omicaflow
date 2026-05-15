@@ -47,10 +47,9 @@ jobs:
 
     - name: Run Snakemake Dry-run
       run: |
-        snakemake -n --config project:cancer_type="test"
+        snakemake -n --config project='{"cancer_type": "test"}'
 
     - name: Run Pipeline Smoke Test
       run: |
-        snakemake --cores 2 --use-conda --config project:cancer_type="test" \
-          modules:acquisition:enabled=false \
-          modules:survival:enabled=false
+        snakemake --cores 2 --use-conda --config project='{"cancer_type": "test"}' \
+          modules='{"acquisition": {"enabled": false}, "survival": {"enabled": false}}'
