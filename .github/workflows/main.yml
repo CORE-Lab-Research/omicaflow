@@ -30,7 +30,7 @@ jobs:
         auto-update-conda: true
         activate-environment: omicaflow-r-base
         environment-file: envs/r_base.yml
-        channel-priority: strict
+        use-mamba: true
 
     - name: Prepare Mock Data
       run: |
