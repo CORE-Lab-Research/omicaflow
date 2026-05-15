@@ -18,6 +18,6 @@ rule analyze_dna:
         driver_prediction=config["dna"]["driver_prediction"],
         maf_threshold=config["dna"]["driver_maf_threshold"]
     conda:
-        "envs/r_base.yml"
+        "../envs/r_base.yml"
     script:
         "modules/dna/analyze_dna.R"

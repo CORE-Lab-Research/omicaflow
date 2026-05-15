@@ -15,6 +15,6 @@ rule analyze_methylation:
         norm_method=config["methylation"]["normalization_method"],
         padj_threshold=config["methylation"]["dmp_padj_threshold"]
     conda:
-        "envs/r_base.yml"
+        "../envs/r_base.yml"
     script:
         "modules/methylation/analyze_methylation.R"

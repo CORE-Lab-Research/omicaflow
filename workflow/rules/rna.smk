@@ -17,6 +17,6 @@ rule analyze_rna:
         lfc_threshold=config["rna"]["lfc_threshold"],
         enrichment_dbs=config["rna"]["enrichment_databases"]
     conda:
-        "envs/r_base.yml"
+        "../envs/r_base.yml"
     script:
         "modules/rna/analyze_rna.R"

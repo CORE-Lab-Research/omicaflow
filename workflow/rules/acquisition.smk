@@ -13,6 +13,6 @@ rule download_tcga_data:
         cache_dir=config["acquisition"]["cache_dir"],
         tcga_url=config["acquisition"]["tcga_api_url"]
     conda:
-        "envs/r_base.yml"
+        "../envs/r_base.yml"
     script:
         "modules/acquisition/download_tcga.R"
