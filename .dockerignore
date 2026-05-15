@@ -1,0 +1,15 @@
+.git
+.github
+results/*
+logs/*
+data/raw/*
+temp/*
+.dev/*
+**/*.log
+**/*.bak
+**/*.tmp
+.vscode
+.ipynb_checkpoints
+node_modules
+venv
+.env
