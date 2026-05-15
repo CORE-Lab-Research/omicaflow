@@ -3,6 +3,8 @@
 
 library(dplyr)
 library(readr)
+library(tidyr)
+library(tibble)
 
 # Get parameters from Snakemake
 min_callrate <- snakemake@params$min_callrate
@@ -39,16 +41,17 @@ message("Processing SNV QC...")
 snv_data <- read_tsv(snakemake@input$snv, show_col_types = FALSE)
 message("SNV data loaded: ", nrow(snv_data), " rows, ", length(unique(snv_data$Tumor_Sample_Barcode)), " samples")
 
-# Filter SNV by call rate (per sample)
-sample_callrates <- snv_data %>%
+# Filter SNV samples by mutation count (proxy for call rate in MAF)
+sample_counts <- snv_data %>%
     group_by(Tumor_Sample_Barcode) %>%
-    summarise(call_rate = n() / nrow(snv_data), .groups = "drop")
-message("SNV call rates calculated for ", nrow(sample_callrates), " samples")
+    summarise(n_mut = n(), .groups = "drop")
+avg_mut <- mean(sample_counts$n_mut)
+message("Average mutations per sample: ", round(avg_mut, 2))
 
-valid_samples_snv <- sample_callrates %>%
-    filter(call_rate >= min_callrate) %>%
+valid_samples_snv <- sample_counts %>%
+    filter(n_mut >= avg_mut * 0.1) %>% # Filter extreme outliers with very few mutations
     pull(Tumor_Sample_Barcode)
-message("Valid SNV samples (callrate >= ", min_callrate, "): ", length(valid_samples_snv))
+message("Valid SNV samples (>= 10% of avg muts): ", length(valid_samples_snv))
 
 filtered_snv <- snv_data %>%
     filter(Tumor_Sample_Barcode %in% valid_samples_snv)
@@ -99,20 +102,15 @@ message("Processing Methylation QC...")
 meth_data <- read_tsv(snakemake@input$methylation, show_col_types = FALSE)
 message("Methylation data loaded: ", nrow(meth_data), " probes, ", ncol(meth_data)-2, " samples")
 
-# Filter probes with >10% missing values
-probe_na_rates <- meth_data %>%
-    select(-c(probe_id, gene_symbol)) %>%
-    summarise(across(everything(), ~ mean(is.na(.)))) %>%
-    pivot_longer(everything(), names_to = "probe", values_to = "na_rate")
-message("Methylation probe NA rates calculated for ", nrow(probe_na_rates), " probes")
+# Filter probes with > threshold missing values (per row)
+# Note: probes are rows, samples are columns
+probe_na_rates <- rowMeans(is.na(meth_data %>% select(-c(probe_id, gene_symbol))))
+message("Methylation probe NA rates calculated")
 
-valid_probes <- probe_na_rates %>%
-    filter(na_rate <= max_na) %>%
-    pull(probe)
-message("Valid methylation probes (NA <=", max_na*100, "%): ", length(valid_probes))
+valid_probes_idx <- which(probe_na_rates <= max_na)
+message("Valid methylation probes (NA <=", max_na*100, "%): ", length(valid_probes_idx))
 
-filtered_meth <- meth_data %>%
-    filter(probe_id %in% valid_probes)
+filtered_meth <- meth_data[valid_probes_idx, ]
 write_tsv(filtered_meth, snakemake@output$filtered_meth)
 message("Filtered Methylation saved: ", snakemake@output$filtered_meth)
 
