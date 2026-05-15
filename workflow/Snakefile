@@ -4,82 +4,53 @@
 configfile: "config/base.yaml"
 
 # Set Snakemake options
-shell.executable("powershell")
-shell.prefix("")
-
 # Include module rules based on config toggles
-if config["modules"]["acquisition"]["enabled"]:
+modules = config["modules"]
+cancer_type = config["project"]["cancer_type"]
+
+if modules["acquisition"]["enabled"]:
     include: "rules/acquisition.smk"
     
-if config["modules"]["qc"]["enabled"]:
+if modules["qc"]["enabled"]:
     include: "rules/qc.smk"
     
-if config["modules"]["dna"]["enabled"]:
+if modules["dna"]["enabled"]:
     include: "rules/dna.smk"
     
-if config["modules"]["rna"]["enabled"]:
+if modules["rna"]["enabled"]:
     include: "rules/rna.smk"
     
-if config["modules"]["methylation"]["enabled"]:
+if modules["methylation"]["enabled"]:
     include: "rules/methylation.smk"
 
-if config["modules"]["integration"]["enabled"]:
+if modules["integration"]["enabled"]:
     include: "rules/integration.smk"
 
-if config["modules"]["survival"]["enabled"]:
+if modules["survival"]["enabled"]:
     include: "rules/survival.smk"
     
-if config["modules"]["reporting"]["enabled"]:
+if modules["reporting"]["enabled"]:
     include: "rules/reporting.smk"
 
-# Default target rule - depends on enabled modules
+# Define target files based on enabled modules
+targets = []
+if modules["acquisition"]["enabled"]:
+    targets.append(f"data/raw/{cancer_type}/sample_map.tsv")
+if modules["qc"]["enabled"]:
+    targets.append(f"data/qc/{cancer_type}/QC_report.html")
+if modules["dna"]["enabled"]:
+    targets.append(f"results/dna/{cancer_type}/Driver_genes.tsv")
+if modules["rna"]["enabled"]:
+    targets.append(f"results/rna/{cancer_type}/DEG_results.tsv")
+if modules["methylation"]["enabled"]:
+    targets.append(f"results/methylation/{cancer_type}/DMP_results.tsv")
+if modules["integration"]["enabled"]:
+    targets.append(f"results/integration/{cancer_type}/converging_genes.tsv")
+if modules["survival"]["enabled"]:
+    targets.append(f"results/survival/{cancer_type}/survival_results.tsv")
+if modules["reporting"]["enabled"]:
+    targets.append(f"results/reports/{cancer_type}/OmicaFlow_Report.html")
+
 rule all:
     input:
-        # Acquisition output (always required if enabled)
-        acquisition=(
-            f"data/raw/{config['project']['cancer_type']}/sample_map.tsv"
-            if config["modules"]["acquisition"]["enabled"]
-            else []
-        ),
-        # QC output
-        qc=(
-            f"data/qc/{config['project']['cancer_type']}/QC_report.html"
-            if config["modules"]["qc"]["enabled"]
-            else []
-        ),
-        # DNA output
-        dna=(
-            f"results/dna/{config['project']['cancer_type']}/Driver_genes.tsv"
-            if config["modules"]["dna"]["enabled"]
-            else []
-        ),
-        # RNA output
-        rna=(
-            f"results/rna/{config['project']['cancer_type']}/DEG_results.tsv"
-            if config["modules"]["rna"]["enabled"]
-            else []
-        ),
-        # Methylation output
-        methylation=(
-            f"results/methylation/{config['project']['cancer_type']}/DMP_results.tsv"
-            if config["modules"]["methylation"]["enabled"]
-            else []
-        ),
-        # Integration output
-        integration=(
-            f"results/integration/{config['project']['cancer_type']}/converging_genes.tsv"
-            if config["modules"]["integration"]["enabled"]
-            else []
-        ),
-        # Survival output (optional, requires clinical data)
-        survival=(
-            f"results/survival/{config['project']['cancer_type']}/survival_results.tsv"
-            if config["modules"]["survival"]["enabled"]
-            else []
-        ),
-        # Reporting output
-        report=(
-            f"results/reports/{config['project']['cancer_type']}/OmicaFlow_Report.html"
-            if config["modules"]["reporting"]["enabled"]
-            else []
-        )
+        targets

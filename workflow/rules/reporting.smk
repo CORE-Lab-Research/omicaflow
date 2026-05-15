@@ -2,8 +2,10 @@
 rule generate_report:
     input:
         dna_summary="results/dna/{cancer_type}/DNA_integration_summary.tsv",
+        dna_driver_genes="results/dna/{cancer_type}/Driver_genes.tsv",
         rna_deg="results/rna/{cancer_type}/DEG_results.tsv",
         meth_dmp="results/methylation/{cancer_type}/DMP_results.tsv",
+        converging_genes="results/integration/{cancer_type}/converging_genes.tsv",
         sample_list="data/qc/{cancer_type}/final_sample_list.tsv"
     output:
         report="results/reports/{cancer_type}/OmicaFlow_Report.html"
@@ -11,7 +13,7 @@ rule generate_report:
         "logs/reporting_{cancer_type}.log"
     params:
         template_dir=config["reporting"]["template_dir"],
-        project_name=config["reporting"]["project_name"]
+        project_name=config["project"]["name"]
     conda:
         "envs/snakemake.yml"
     script:
