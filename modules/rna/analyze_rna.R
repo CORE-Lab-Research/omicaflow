@@ -19,8 +19,9 @@ log_file <- snakemake@log[[1]]
 # Setup logging
 log_dir <- dirname(log_file)
 if (!dir.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
-sink(log_file, type = "output", append = TRUE)
-sink(log_file, type = "message", append = TRUE)
+log_con <- file(log_file, open = "a")
+sink(log_con, type = "output")
+sink(log_con, type = "message")
 message("=== START RNA ANALYSIS MODULE: ", Sys.time(), " ===")
 
 # Input validation
@@ -190,5 +191,6 @@ message("QC report saved: ", snakemake@output$rna_qc)
 message("=== RNA ANALYSIS MODULE COMPLETED: ", Sys.time(), " ===")
 message("RNA analysis completed. DEGs found: ", nrow(deg_results))
 # Close sink connections
-sink(type = "output")
 sink(type = "message")
+sink(type = "output")
+close(log_con)

@@ -14,8 +14,9 @@ log_file <- snakemake@log[[1]]
 # Setup logging
 log_dir <- dirname(log_file)
 if (!dir.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
-sink(log_file, type = "output", append = TRUE)
-sink(log_file, type = "message", append = TRUE)
+log_con <- file(log_file, open = "a")
+sink(log_con, type = "output")
+sink(log_con, type = "message")
 message("=== START MULTI-OMICS INTEGRATION MODULE: ", Sys.time(), " ===")
 
 # Input validation
@@ -75,6 +76,7 @@ mut_expr_genes <- driver_df %>%
               by = "gene")
 message("Mutation + expression genes: ", nrow(mut_expr_genes))
 
+# Add methylation (hypomethylation) filter
 message("Adding methylation (hypomethylation) filter...")
 converging_genes <- mut_expr_genes %>%
     inner_join(dmp_df %>%
@@ -133,5 +135,6 @@ message("Venn diagram data saved: ", snakemake@output$venn_data)
 message("=== MULTI-OMICS INTEGRATION MODULE COMPLETED: ", Sys.time(), " ===")
 message("Converging genes found: ", nrow(converging_genes))
 # Close sink connections
-sink(type = "output")
 sink(type = "message")
+sink(type = "output")
+close(log_con)

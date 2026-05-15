@@ -15,8 +15,9 @@ log_file <- snakemake@log[[1]]
 # Setup logging
 log_dir <- dirname(log_file)
 if (!dir.exists(log_dir)) dir.create(log_dir, recursive = TRUE)
-sink(log_file, type = "output", append = TRUE)
-sink(log_file, type = "message", append = TRUE)
+log_con <- file(log_file, open = "a")
+sink(log_con, type = "output")
+sink(log_con, type = "message")
 message("=== START SURVIVAL ANALYSIS MODULE: ", Sys.time(), " ===")
 
 # Input validation
@@ -258,5 +259,6 @@ message("=== SURVIVAL ANALYSIS MODULE COMPLETED: ", Sys.time(), " ===")
 message("Significant prognostic genes (FDR < 0.05): ", 
         if (nrow(survival_results) > 0) sum(survival_results$p_adj < 0.05) else 0)
 # Close sink connections
-sink(type = "output")
 sink(type = "message")
+sink(type = "output")
+close(log_con)
