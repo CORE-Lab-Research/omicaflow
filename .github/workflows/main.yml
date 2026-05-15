@@ -35,6 +35,7 @@ jobs:
     - name: Prepare Mock Data
       run: |
         mkdir -p data/raw/test
+        mkdir -p data/clinical/test
         cp data/test/SNV.maf data/raw/test/
         cp data/test/CNV.tsv data/raw/test/
         cp data/test/RNA_FPKM.tsv data/raw/test/
@@ -44,6 +45,14 @@ jobs:
         echo -e "TCGA-00-0001\tTCGA-00-0001\tTumor" >> data/raw/test/sample_map.tsv
         echo -e "TCGA-00-0002\tTCGA-00-0002\tTumor" >> data/raw/test/sample_map.tsv
         echo -e "TCGA-00-0003\tTCGA-00-0003\tTumor" >> data/raw/test/sample_map.tsv
+        # Create dummy clinical_data.tsv
+        echo -e "sample\tOS\tOS_status" > data/clinical/test/clinical_data.tsv
+        echo -e "TCGA-00-0001\t1000\t1" >> data/clinical/test/clinical_data.tsv
+        echo -e "TCGA-00-0002\t500\t0" >> data/clinical/test/clinical_data.tsv
+        echo -e "TCGA-00-0003\t1200\t1" >> data/clinical/test/clinical_data.tsv
+        # Disable modules that require external data or are optional for smoke test
+        sed -i '/acquisition:/,/enabled:/ s/enabled: true/enabled: false/' config/base.yaml
+        sed -i '/survival:/,/enabled:/ s/enabled: true/enabled: false/' config/base.yaml
 
     - name: Run Snakemake Dry-run
       run: |
@@ -51,5 +60,4 @@ jobs:
 
     - name: Run Pipeline Smoke Test
       run: |
-        snakemake --cores 2 --use-conda --config project='{"cancer_type": "test"}' \
-          modules='{"acquisition": {"enabled": false}, "survival": {"enabled": false}}'
+        snakemake --cores 2 --use-conda --config project='{"cancer_type": "test"}'
