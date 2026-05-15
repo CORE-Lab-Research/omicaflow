@@ -17,4 +17,4 @@ rule integrate_omics:
     conda:
         "../../envs/r_base.yml"
     script:
-        "modules/integration/find_converging_genes.R"
+        "../modules/integration/find_converging_genes.R"

@@ -13,4 +13,4 @@ rule analyze_survival:
     conda:
         "../../envs/r_base.yml"
     script:
-        "modules/survival/analyze_survival.R"
+        "../modules/survival/analyze_survival.R"

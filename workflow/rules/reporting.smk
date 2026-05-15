@@ -17,4 +17,4 @@ rule generate_report:
     conda:
         "../../envs/snakemake.yml"
     script:
-        "modules/reporting/render_report.py"
+        "../modules/reporting/render_report.py"

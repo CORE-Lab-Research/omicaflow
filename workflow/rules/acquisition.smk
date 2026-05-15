@@ -15,4 +15,4 @@ rule download_tcga_data:
     conda:
         "../../envs/r_base.yml"
     script:
-        "modules/acquisition/download_tcga.R"
+        "../modules/acquisition/download_tcga.R"
