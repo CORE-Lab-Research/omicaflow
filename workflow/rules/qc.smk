@@ -19,6 +19,6 @@ rule run_qc:
         min_map_rate=config["qc"]["min_rna_mapping_rate"],
         max_na=config["qc"]["max_methylation_na"]
     conda:
-        "../envs/r_base.yml"
+        "../../envs/r_base.yml"
     script:
         "modules/qc/run_qc.R"

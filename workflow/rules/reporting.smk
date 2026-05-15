@@ -15,6 +15,6 @@ rule generate_report:
         template_dir=config["reporting"]["template_dir"],
         project_name=config["project"]["name"]
     conda:
-        "../envs/snakemake.yml"
+        "../../envs/snakemake.yml"
     script:
         "modules/reporting/render_report.py"

@@ -15,6 +15,6 @@ rule integrate_omics:
         dmp_logfc_threshold=-0.5,  # Fixed threshold for hypomethylation
         dmp_padj_threshold=config["methylation"]["dmp_padj_threshold"]
     conda:
-        "../envs/r_base.yml"
+        "../../envs/r_base.yml"
     script:
         "modules/integration/find_converging_genes.R"

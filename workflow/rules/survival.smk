@@ -11,6 +11,6 @@ rule analyze_survival:
     params:
         survival_endpoint=config.get("survival", {}).get("endpoint", "OS")  # OS or PFS
     conda:
-        "../envs/r_base.yml"
+        "../../envs/r_base.yml"
     script:
         "modules/survival/analyze_survival.R"
