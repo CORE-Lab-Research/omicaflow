@@ -1,55 +1,236 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>OmicaFlow Report - {{ cancer_type }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmicaFlow Report | {{ cancer_type }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        h1 { color: #2c3e50; }
-        h2 { color: #3498db; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .metric { font-size: 24px; color: #27ae60; font-weight: bold; }
-        .module-section { margin: 30px 0; padding: 20px; background: #f9f9f9; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            line-height: 1.6; 
+            margin: 0;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        header h1 { margin: 0; font-weight: 700; letter-spacing: -0.025em; }
+        header p { opacity: 0.8; margin: 10px 0 0; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: -30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card h3 { margin: 0; font-size: 0.875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); margin: 5px 0; }
+
+        .section {
+            background: var(--card-bg);
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 { margin: 0; color: var(--text-main); font-size: 1.5rem; }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-primary { background: #e0e7ff; color: #4338ca; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 12px; background: var(--bg); color: var(--text-muted); font-size: 0.875rem; font-weight: 600; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+        tr:hover { background-color: #f1f5f9; }
+
+        .converging-row { background-color: #f0fdf4; font-weight: 600; }
+        .converging-row td { color: var(--success); }
+
+        .footer { text-align: center; margin-top: 60px; color: var(--text-muted); font-size: 0.875rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
-    <h1>OmicaFlow Multi-Omics Analysis Report</h1>
-    <p><strong>Project:</strong> {{ project_name }}</p>
-    <p><strong>Cancer Type:</strong> {{ cancer_type }}</p>
-    <p><strong>Generated:</strong> {{ generation_date }}</p>
 
-    <div class="module-section">
-        <h2>DNA Analysis Summary</h2>
-        <p>Total SNV mutations: <span class="metric">{{ dna_total_snv }}</span></p>
-        <p>Driver genes identified: <span class="metric">{{ dna_driver_genes }}</span></p>
-        <p>Top driver genes:</p>
-        <table>
-            <tr><th>Gene</th><th># Samples</th><th>MAF</th></tr>
-            {% for gene in dna_top_genes %}
-            <tr><td>{{ gene.gene }}</td><td>{{ gene.n_samples }}</td><td>{{ "%.3f"|format(gene.maf) }}</td></tr>
-            {% endfor %}
-        </table>
+    <header>
+        <div class="container">
+            <h1>OmicaFlow: Multi-Omics Analysis</h1>
+            <p>{{ project_name }} • {{ cancer_type }} Cohort</p>
+            <p style="font-size: 0.8rem;">Analysis Date: {{ generation_date }}</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Summary Stats -->
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <h3>Matched Samples</h3>
+                <div class="value">{{ total_samples }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Driver Genes</h3>
+                <div class="value">{{ dna_driver_genes_count }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>RNA DEGs</h3>
+                <div class="value">{{ rna_deg_count }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Converging</h3>
+                <div class="value" style="color: var(--success)">{{ conv_genes_count }}</div>
+            </div>
+        </div>
+
+        <!-- Highlight Section: Converging Genes -->
+        <div class="section" style="border-left: 8px solid var(--success);">
+            <div class="section-header">
+                <h2>Multi-Omics Converging Genes</h2>
+                <span class="badge badge-success">High Confidence Drivers</span>
+            </div>
+            <p>Genes with Somatic Mutation + Transcriptional Over-expression + Promoter Hypomethylation.</p>
+            
+            {% if conv_genes_list %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gene Symbol</th>
+                        <th>Mutation Freq (MAF)</th>
+                        <th>Expression (LFC)</th>
+                        <th>Methylation (logFC)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gene in conv_genes_list %}
+                    <tr class="converging-row">
+                        <td>{{ gene.gene }}</td>
+                        <td>{{ "%.1f"|format(gene.maf * 100) }}%</td>
+                        <td>+{{ "%.2f"|format(gene.log2FoldChange) }}</td>
+                        <td>{{ "%.2f"|format(gene.logFC) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color: var(--text-muted); font-style: italic;">No converging genes found with current thresholds.</p>
+            {% endif %}
+        </div>
+
+        <!-- DNA Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>DNA Alterations</h2>
+                <span class="badge badge-primary">{{ dna_total_snv }} Total SNVs</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gene</th>
+                        <th># Samples</th>
+                        <th>Mutation Frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gene in dna_top_genes %}
+                    <tr>
+                        <td><strong>{{ gene.Hugo_Symbol }}</strong></td>
+                        <td>{{ gene.n_samples }}</td>
+                        <td>{{ "%.1f"|format(gene.maf * 100) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- RNA Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Transcriptomic Profiling</h2>
+                <span class="badge badge-primary">{{ rna_up_count }} Up | {{ rna_down_count }} Down</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gene ID</th>
+                        <th>log2 Fold Change</th>
+                        <th>Adj. p-value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gene in rna_top_degs %}
+                    <tr>
+                        <td>{{ gene.gene_id }}</td>
+                        <td style="color: {{ 'var(--success)' if gene.log2FoldChange > 0 else 'var(--danger)' }}">
+                            {{ "+" if gene.log2FoldChange > 0 }}{{ "%.2f"|format(gene.log2FoldChange) }}
+                        </td>
+                        <td>{{ "%.2e"|format(gene.padj) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <div class="footer">
+        <p>Generated by OmicaFlow Pipeline v1.0.0 • {{ timestamp }}</p>
+        <p>Bioinformatics Research Core Lab</p>
     </div>
 
-    <div class="module-section">
-        <h2>RNA Analysis Summary</h2>
-        <p>Differentially Expressed Genes: <span class="metric">{{ rna_deg_count }}</span></p>
-        <p>Up-regulated: {{ rna_up_count }}</p>
-        <p>Down-regulated: {{ rna_down_count }}</p>
-    </div>
-
-    <div class="module-section">
-        <h2>Methylation Analysis Summary</h2>
-        <p>Differentially Methylated Probes: <span class="metric">{{ meth_dmp_count }}</span></p>
-    </div>
-
-    <div class="module-section">
-        <h2>Sample Summary</h2>
-        <p>Total matched samples: <span class="metric">{{ total_samples }}</span></p>
-    </div>
-
-    <hr>
-    <p><em>Generated by OmicaFlow v1.0 | {{ timestamp }}</em></p>
 </body>
 </html>
