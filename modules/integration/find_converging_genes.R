@@ -54,14 +54,14 @@ dmp_df <- read_tsv(dmp_results, show_col_types = FALSE) %>%
     select(gene, logFC, adj.P.Val)
 message("DMP results loaded: ", nrow(dmp_df), " genes")
 
-# --- Define Thresholds ---
-maf_threshold <- 0.05  # Mutation frequency threshold
-deg_lfc_threshold <- 1.5  # Over-expression threshold (positive LFC)
-deg_padj_threshold <- 0.05
-dmp_logfc_threshold <- -0.5  # Hypomethylation threshold (negative logFC = lower methylation)
-dmp_padj_threshold <- 0.05
+# --- Define Thresholds (from Snakemake params) ---
+maf_threshold <- snakemake@params$maf_threshold
+deg_lfc_threshold <- snakemake@params$deg_lfc_threshold
+deg_padj_threshold <- snakemake@params$deg_padj_threshold
+dmp_logfc_threshold <- snakemake@params$dmp_logfc_threshold
+dmp_padj_threshold <- snakemake@params$dmp_padj_threshold
 
-message("Using thresholds:")
+message("Using thresholds from config:")
 message("  - Driver genes: MAF >= ", maf_threshold)
 message("  - DEG: LFC >= ", deg_lfc_threshold, " (over-expression), padj <= ", deg_padj_threshold)
 message("  - DMP: logFC <= ", dmp_logfc_threshold, " (hypomethylation), padj <= ", dmp_padj_threshold)
