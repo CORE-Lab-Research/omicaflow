@@ -41,8 +41,12 @@ message("Loading SNV data...")
 maf_data <- read_tsv(filtered_snv, show_col_types = FALSE)
 message("SNV data loaded: ", nrow(maf_data), " rows")
 
+message("Loading sample metadata for maftools...")
+sample_meta <- read_tsv(sample_list, show_col_types = FALSE) %>%
+    rename(Tumor_Sample_Barcode = sample)
+
 message("Creating MAF object with maftools...")
-maf_obj <- read.maf(maf = filtered_snv)
+maf_obj <- read.maf(maf = filtered_snv, clinicalData = sample_meta)
 
 # Get annotated SNV data
 annotated_snv <- maf_obj@data
@@ -58,7 +62,7 @@ gene_summary <- annotated_snv %>%
         total_mutations = n(),
         .groups = "drop"
     ) %>%
-    mutate(maf = n_samples / length(unique(annotated_snv$Tumor_Sample_Barcode))) %>%
+    mutate(maf = n_samples / length(unique(sample_meta$Tumor_Sample_Barcode))) %>%
     filter(maf >= maf_threshold) %>%
     arrange(desc(maf))
 
@@ -85,13 +89,17 @@ message("Loading CNV data...")
 cnv_data <- read_tsv(filtered_cnv, show_col_types = FALSE)
 message("CNV data loaded: ", nrow(cnv_data), " rows, ", length(unique(cnv_data$Sample)), " samples")
 
-message("Summarizing CNV events...")
+# Thresholds for Amp/Del (could be moved to config)
+amp_thresh <- 0.5
+del_thresh <- -0.5
+
+message("Summarizing CNV events (Amp > ", amp_thresh, ", Del < ", del_thresh, ")...")
 cnv_summary <- cnv_data %>%
-    filter(segment_mean > 0.5 | segment_mean < -0.5) %>%  # Threshold for amp/del
+    filter(segment_mean > amp_thresh | segment_mean < del_thresh) %>%
     group_by(Sample, gene_symbol) %>%
     summarise(
         avg_segment_mean = mean(segment_mean),
-        event_type = ifelse(avg_segment_mean > 0.5, "amplification", "deletion"),
+        event_type = ifelse(avg_segment_mean > amp_thresh, "amplification", "deletion"),
         .groups = "drop"
     ) %>%
     group_by(gene_symbol, event_type) %>%
