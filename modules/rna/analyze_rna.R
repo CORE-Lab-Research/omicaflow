@@ -5,8 +5,9 @@ library(DESeq2)
 library(clusterProfiler)
 library(dplyr)
 library(readr)
+library(tidyr)
+library(tibble)
 library(ggplot2)
-library(rmarkdown)
 
 # Get parameters from Snakemake
 filtered_rna <- snakemake@input$filtered_rna
@@ -47,12 +48,21 @@ message("RNA data loaded: ", nrow(rna_data), " genes, ", ncol(rna_data)-1, " sam
 sample_df <- read_tsv(sample_list, show_col_types = FALSE)
 message("Sample list loaded: ", nrow(sample_df), " samples")
 
-# For MVP, assume half are tumor, half are normal (simplified)
-# In real implementation, get sample types from TCGA metadata
-n_samples <- ncol(rna_data) - 1  # minus gene_id column
-tumor_samples <- colnames(rna_data)[2:(n_samples/2 + 1)]
-normal_samples <- colnames(rna_data)[(n_samples/2 + 2):ncol(rna_data)]
-message("Assumed sample types: ", length(tumor_samples), " tumor, ", length(normal_samples), " normal")
+# Identify sample types from TCGA barcodes (14th-15th characters)
+# 01-09: Tumor, 10-19: Normal
+all_samples <- colnames(rna_data)[-1]
+sample_codes <- substr(all_samples, 14, 15)
+tumor_samples <- all_samples[as.numeric(sample_codes) < 10]
+normal_samples <- all_samples[as.numeric(sample_codes) >= 10]
+
+message("Sample classification:")
+message("  - Tumor: ", length(tumor_samples))
+message("  - Normal: ", length(normal_samples))
+
+if (length(normal_samples) == 0) {
+    message("WARNING: No normal samples found. DESeq2 might fail if not comparing conditions.")
+    # For MVP survival only, we might proceed, but DEG needs comparison.
+}
 
 # Create DESeq2 object
 message("Creating DESeq2 object...")
@@ -60,10 +70,15 @@ count_data <- rna_data %>%
     column_to_rownames("gene_id") %>%
     as.matrix()
 
+# Ensure counts are integers (DESeq2 requirement)
+count_data <- round(count_data)
+
 col_data <- data.frame(
     sample = colnames(count_data),
-    condition = factor(ifelse(colnames(count_data) %in% tumor_samples, "Tumor", "Normal"))
+    condition = factor(ifelse(colnames(count_data) %in% tumor_samples, "Tumor", "Normal"), 
+                      levels = c("Normal", "Tumor"))
 )
+rownames(col_data) <- col_data$sample
 
 dds <- DESeqDataSetFromMatrix(
     countData = count_data,
@@ -140,7 +155,13 @@ if (nrow(deg_results) > 0) {
 
 # --- Generate QC Report ---
 message("Generating QC report...")
-pca_data <- prcomp(t(log2(norm_counts[, !colnames(norm_counts) %in% "gene_id"] + 1)), scale. = TRUE)
+
+# PCA on top 500 most variable genes
+message("Calculating PCA (top 500 variable genes)...")
+log_norm_counts <- log2(norm_counts[, !colnames(norm_counts) %in% "gene_id"] + 1)
+rv <- apply(log_norm_counts, 1, var)
+select <- order(rv, decreasing = TRUE)[1:min(500, length(rv))]
+pca_data <- prcomp(t(log_norm_counts[select, ]), scale. = TRUE)
 
 pca_df <- as.data.frame(pca_data$x[, 1:2])
 pca_df$sample <- rownames(pca_df)
@@ -149,7 +170,7 @@ pca_df$condition <- col_data$condition[match(pca_df$sample, col_data$sample)]
 p <- ggplot(pca_df, aes(x = PC1, y = PC2, color = condition)) +
     geom_point(size = 3) +
     theme_minimal() +
-    ggtitle("PCA of Normalized Expression Data")
+    ggtitle("PCA of Normalized Expression Data (Top 500 Variable Genes)")
 
 ggsave(file.path(output_dir, "pca_plot.png"), p, width = 8, height = 6)
 
