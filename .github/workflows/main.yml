@@ -51,8 +51,9 @@ jobs:
         echo -e "TCGA-00-0002\t500\t0" >> data/clinical/test/clinical_data.tsv
         echo -e "TCGA-00-0003\t1200\t1" >> data/clinical/test/clinical_data.tsv
         # Disable modules that require external data or are optional for smoke test
-        sed -i '/acquisition:/,/enabled:/ s/enabled: true/enabled: false/' config/base.yaml
-        sed -i '/survival:/,/enabled:/ s/enabled: true/enabled: false/' config/base.yaml
+        sed -i 's/acquisition: { enabled: true }/acquisition: { enabled: false }/' config/base.yaml
+        sed -i 's/survival: { enabled: true }/survival: { enabled: false }/' config/base.yaml
+        # Note: survival is already false in base.yaml, but this ensures it stays false.
 
     - name: Run Snakemake Dry-run
       run: |
